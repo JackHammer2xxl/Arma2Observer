@@ -9,7 +9,11 @@ package de.kayklein.ui;
 import de.kayklein.classes.IProperties;
 import de.kayklein.log.Log;
 import de.kayklein.task.TaskFactory;
+import de.kayklein.task.impl.KillTask;
+import de.kayklein.task.impl.StartTask;
 import de.kayklein.ui.controls.ButtonReload;
+import de.kayklein.ui.controls.ButtonStart;
+import de.kayklein.ui.controls.ButtonStop;
 import de.kayklein.ui.controls.LogTextArea;
 import de.kayklein.ui.validator.impl.CommandArgsInputValidator;
 import de.kayklein.ui.validator.impl.PathInputValidator;
@@ -23,7 +27,7 @@ import java.util.List;
  *
  * @author kayklein
  */
-public class MainWindow extends JFrame implements ButtonReload.Delegate {
+public class MainWindow extends JFrame implements ButtonReload.Delegate, ButtonStop.Delegate, ButtonStart.Delegate {
 
     private IProperties config;
     private PathInputValidator validatorPath;
@@ -36,7 +40,7 @@ public class MainWindow extends JFrame implements ButtonReload.Delegate {
         setTitle("Arma2 Server Observer");
         initComponents();
 
-        setSize(800,600);
+        setSize(800, 600);
         setResizable(false);
     }
 
@@ -50,13 +54,22 @@ public class MainWindow extends JFrame implements ButtonReload.Delegate {
             List<String> times = Arrays.asList(timings.split(";"));
             for(String strTime : times){
                 String[] time = strTime.split(":");
-                TaskFactory.addTask(time[0] , time[1] );
+                TaskFactory.addTask(config, time[0] , time[1] );
             }
         }else {
             Log.i("MainWindow.doReloadTimings" , String.format("No timings specified") );
         }
     }
 
+    @Override
+    public void doStopProcess() {
+        new KillTask().killProcess(config.getProperty("path"));
+    }
+
+    @Override
+    public void doStartProcess() {
+        new StartTask().startProcess(config.getProperty("path") );  // TODO add command line args
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="UI Code">
@@ -65,8 +78,9 @@ public class MainWindow extends JFrame implements ButtonReload.Delegate {
         final JLabel lblTimings     = new JLabel("Restart Times (00:00 - 12:59)");
         final JLabel lblPath        = new JLabel("Path");
         final JLabel lblCommandLine = new JLabel("Befehlszeile");
-        final JButton btnStart      = new JButton("Start");
-        final JButton btnStop       = new JButton("Stop");
+        final ButtonStart btnStart  = new ButtonStart("Start", this);
+        final ButtonStop btnStop    = new ButtonStop("Stop", this);
+
 
         txtLogView       = new LogTextArea();
         Log.setAppender(txtLogView );

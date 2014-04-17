@@ -19,7 +19,7 @@ public class TimingsParser {
                 if(time.length > 1) {
                     String hour = time[0];
                     String minute = time[1];
-                    boolean isValidHour = hour.matches("[1-9]|1[0-2]");
+                    boolean isValidHour = hour.matches("[0-9]|1[0-2]");
                     boolean isValidMinute = minute.matches("[0-5]\\d");
                     if(isValidHour && isValidMinute){
                         isValid = true;

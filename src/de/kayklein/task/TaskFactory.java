@@ -1,5 +1,6 @@
 package de.kayklein.task;
 
+import de.kayklein.classes.IProperties;
 import de.kayklein.log.Log;
 import de.kayklein.task.impl.RestartTask;
 
@@ -15,11 +16,11 @@ public class TaskFactory {
 
     private static List<Timer> taskQueue = new ArrayList<Timer>();
 
-    public static void addTask(String hour, String minute) {
-        addTask(Integer.parseInt(hour) , Integer.parseInt(minute));
+    public static void addTask(IProperties config, String hour, String minute) {
+        addTask(config, Integer.parseInt(hour) , Integer.parseInt(minute));
     }
 
-    public static void addTask(int hour, int minute) {
+    public static void addTask(IProperties config, int hour, int minute) {
         Timer timer = new Timer();
         Calendar date = Calendar.getInstance();
         // date.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
@@ -28,7 +29,7 @@ public class TaskFactory {
         date.set(Calendar.SECOND, 0);
         date.set(Calendar.MILLISECOND, 0);
         // Schedule to run every day at time
-        timer.schedule(new RestartTask(), date.getTime(), 1000 * 60 * 60 * 24);
+        timer.schedule(new RestartTask(config), date.getTime(), 1000 * 60 * 60 * 24);
         Log.i("TaskFactory.addTask", String.format("Restart Server at %02d:%02d", hour, minute) );
         taskQueue.add(timer );
     }
